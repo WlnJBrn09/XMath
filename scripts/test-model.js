@@ -1,0 +1,18 @@
+'use strict';
+const assert = require('node:assert/strict');
+const M = require('../static/model.js');
+assert.match(M.texToMathML('\\frac{a}{b}'), /<mfrac>/);
+assert.match(M.texToMathML('x^{2}'), /<msup>/);
+assert.match(M.texToMathML('\\sqrt{x}'), /<msqrt>/);
+assert.match(M.texToMathML('\\sum_{i=1}^{n}'), /<msubsup>/);
+assert.match(M.texToMathML('<script>'), /&lt;/);
+assert.throws(() => M.texToMathML('\\unknown{x}'), /Unknown command/);
+assert.throws(() => M.texToMathML('\\frac{a}{b'), /Missing closing brace/);
+const star = M.starToTex('{a} over {b} + %alpha');
+assert.match(star, /\\frac\{a\}\{b\}/);
+assert.match(star, /\\alpha/);
+assert.match(M.toMathML({ source: '{a} over {b}', mode: 'starmath' }), /<mfrac>/);
+assert.match(M.toMathML({ source: 'sum from {i=1} to {n} i', mode: 'starmath' }), /<msubsup>/);
+assert.match(M.toSvg(M.blank()), /^<svg /);
+assert.ok(!M.toSvg(M.blank()).includes('foreignObject'));
+console.log('XMath model checks passed');
